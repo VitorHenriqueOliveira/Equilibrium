@@ -1,24 +1,24 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Animated,
   ScrollView,
   StatusBar,
   Dimensions,
   TextInput,
   Alert,
   Image,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import logo from "./assets/logo.jpg";
+import logo from './assets/logo.jpg';
 
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // ==============================================
 // Configuração Global do Timer
@@ -26,56 +26,178 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const TimerContext = createContext();
 
-const ProvedorTimer = ({ children }) => {
+export const ProvedorTimer = ({ children }) => {
   const [tempoTela, setTempoTela] = useState(0);
   const [ativo, setAtivo] = useState(true);
   const [metaPersonalizada, setMetaPersonalizada] = useState(2 * 3600); // 2 horas em segundos
   const [tempoUsuario, setTempoUsuario] = useState(0);
   const [avaliacaoFeita, setAvaliacaoFeita] = useState(false);
-const [desafios, setDesafios] = useState([
-  { id: 1, nome: "Sem redes sociais por 1h", completado: false, pontos: 50 },
-  { id: 2, nome: "Ler um livro por 30min", completado: false, pontos: 75 },
-  { id: 3, nome: "Fazer 2 atividades offline", completado: false, pontos: 100 },
-  { id: 4, nome: "Meditar por 15min", completado: false, pontos: 60 },
-  { id: 5, nome: "Caminhar sem celular", completado: false, pontos: 80 },
+  const [desafios, setDesafios] = useState([
+    { id: 1, nome: 'Sem redes sociais por 1h', completado: false, pontos: 50 },
+    { id: 2, nome: 'Ler um livro por 30min', completado: false, pontos: 75 },
+    {
+      id: 3,
+      nome: 'Fazer 2 atividades offline',
+      completado: false,
+      pontos: 100,
+    },
+    { id: 4, nome: 'Meditar por 15min', completado: false, pontos: 60 },
+    { id: 5, nome: 'Caminhar sem celular', completado: false, pontos: 80 },
 
-  // Novos desafios
-  { id: 6, nome: "Desconectar por 3 horas seguidas", completado: false, pontos: 200 },
-  { id: 7, nome: "Ler um livro inteiro em 7 dias", completado: false, pontos: 500 },
-  { id: 8, nome: "Um dia inteiro sem redes sociais", completado: false, pontos: 1000 },
-  { id: 9, nome: "Ficar offline por um final de semana", completado: false, pontos: 1500 },
-  { id: 10, nome: "7 dias seguidos sem redes sociais", completado: false, pontos: 2000 },
-  { id: 11, nome: "30 dias de detox digital (uso máximo 1h/dia)", completado: false, pontos: 5000 },
-  { id: 12, nome: "Praticar atividade física diariamente por 15 dias", completado: false, pontos: 1200 },
-  { id: 13, nome: "Jantar todos os dias sem telas por 1 semana", completado: false, pontos: 800 },
-  { id: 14, nome: "Fazer um diário em papel por 10 dias", completado: false, pontos: 900 },
-  { id: 15, nome: "Passar um dia inteiro em natureza, sem eletrônicos", completado: false, pontos: 1800 },
-]);
+    // Novos desafios
+    {
+      id: 6,
+      nome: 'Desconectar por 3 horas seguidas',
+      completado: false,
+      pontos: 200,
+    },
+    {
+      id: 7,
+      nome: 'Ler um livro inteiro em 7 dias',
+      completado: false,
+      pontos: 500,
+    },
+    {
+      id: 8,
+      nome: 'Um dia inteiro sem redes sociais',
+      completado: false,
+      pontos: 1000,
+    },
+    {
+      id: 9,
+      nome: 'Ficar offline por um final de semana',
+      completado: false,
+      pontos: 1500,
+    },
+    {
+      id: 10,
+      nome: '7 dias seguidos sem redes sociais',
+      completado: false,
+      pontos: 2000,
+    },
+    {
+      id: 11,
+      nome: '30 dias de detox digital (uso máximo 1h/dia)',
+      completado: false,
+      pontos: 5000,
+    },
+    {
+      id: 12,
+      nome: 'Praticar atividade física diariamente por 15 dias',
+      completado: false,
+      pontos: 1200,
+    },
+    {
+      id: 13,
+      nome: 'Jantar todos os dias sem telas por 1 semana',
+      completado: false,
+      pontos: 800,
+    },
+    {
+      id: 14,
+      nome: 'Fazer um diário em papel por 10 dias',
+      completado: false,
+      pontos: 900,
+    },
+    {
+      id: 15,
+      nome: 'Passar um dia inteiro em natureza, sem eletrônicos',
+      completado: false,
+      pontos: 1800,
+    },
+  ]);
+  const [metas, setMetas] = useState([
+    {
+      id: 1,
+      titulo: 'Reduzir tempo diário de tela',
+      metaMinutos: 120,
+      tempoInicial: tempoTela,
+    },
+  ]);
+
+  const [historico, setHistorico] = useState([
+    {
+      id: 0,
+      titulo: 'Meta concluída de exemplo',
+      metaMinutos: 60,
+      tempoInicial: 0,
+      tempoFinal: 148,
+    },
+  ]);
+
+  const adicionarMeta = (titulo, metaSegundos) => {
+    setMetas((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        titulo,
+        metaMinutos: metaSegundos,
+        tempoInicial: tempoTela,
+      },
+    ]);
+  };
+
+  const completarMeta = (id) => {
+    setMetas((anteriores) => {
+      const meta = anteriores.find((m) => m.id === id);
+      if (!meta) return anteriores;
+
+      // Adiciona a meta ao histórico
+      setHistorico((h) => [
+        ...h,
+        {
+          ...meta,
+          tempoFinal: tempoTela - meta.tempoInicial,
+        },
+      ]);
+
+      // Remove a meta da lista de metas
+      return anteriores.filter((m) => m.id !== id);
+    });
+  };
+
+  const editarMeta = (id, novoTitulo, novosMinutos) => {
+    setMetas((anteriores) =>
+      anteriores.map((m) =>
+        m.id === id
+          ? { ...m, titulo: novoTitulo, metaMinutos: novosMinutos }
+          : m
+      )
+    );
+  };
+
+  const excluirMeta = (id) => {
+    setMetas((anteriores) => anteriores.filter((m) => m.id !== id));
+  };
+
+  const [tempoInicialApp, setTempoInicialApp] = useState(null);
+  useEffect(() => {
+    setTempoInicialApp(tempoTela);
+  }, []);
 
   const [pontos, setPontos] = useState(0);
   const [rotinas, setRotinas] = useState([]);
   const [curiosidades] = useState([
-    "Reduzir o uso do celular melhora significativamente a memória de curto prazo, segundo estudos em neurociência cognitiva",
-    "Menos tempo em telas está associado a menores níveis de cortisol, o hormônio do estresse, promovendo mais equilíbrio emocional",
-    "Um detox digital ajuda a restaurar a capacidade de atenção sustentada, frequentemente prejudicada por interrupções constantes",
-    "O tédio induzido pela ausência do celular estimula a criatividade, permitindo conexões mentais mais livres e originais",
-    "A redução no tempo de tela contribui para romper padrões de uso compulsivo semelhantes aos de vícios comportamentais",
-    "A ausência de celulares em interações sociais fortalece vínculos e melhora a empatia entre as pessoas",
-    "Desconectar-se libera tempo para atividades prazerosas e significativas, promovendo maior satisfação com a vida",
-    "Menos uso de celular está relacionado à diminuição de dores cervicais causadas por má postura prolongada",
-    "Reduzir o uso de celular em ambientes de risco diminui a probabilidade de acidentes por distração",
-    "Evitar telas à noite favorece o ritmo circadiano natural, melhorando a qualidade e duração do sono",
-    "O detox digital reduz a exposição a conteúdos negativos ou desinformativos que afetam o bem-estar mental",
-    "Menos tempo em redes sociais permite o desenvolvimento de autocontrole e disciplina, importantes para a saúde mental",
-    "Estudantes que reduzem o uso do celular têm melhor desempenho acadêmico por aumentarem sua capacidade de foco",
-    "A diminuição da tela reduz a procrastinação associada a estímulos digitais e aumenta a execução de tarefas importantes",
-    "Ficar longe do celular ajuda a reequilibrar o sistema de dopamina, diminuindo a busca por recompensas instantâneas",
-    "A redução do tempo de tela facilita a prática de mindfulness, promovendo maior conexão com o momento presente",
-    "Menos exposição digital reduz a irritabilidade e aumenta a tolerância à frustração, segundo estudos em psicologia comportamental",
-    "Evitar distrações do celular durante atividades físicas melhora o rendimento e a consistência nos treinos",
-    "Ficar desconectado favorece o desenvolvimento da inteligência emocional ao permitir contato mais consciente com as emoções",
-    "O detox digital estimula hábitos saudáveis de sono, alimentação e autocuidado, ao liberar tempo e foco para essas práticas",
-
+    'Reduzir o uso do celular melhora significativamente a memória de curto prazo, segundo estudos em neurociência cognitiva',
+    'Menos tempo em telas está associado a menores níveis de cortisol, o hormônio do estresse, promovendo mais equilíbrio emocional',
+    'Um detox digital ajuda a restaurar a capacidade de atenção sustentada, frequentemente prejudicada por interrupções constantes',
+    'O tédio induzido pela ausência do celular estimula a criatividade, permitindo conexões mentais mais livres e originais',
+    'A redução no tempo de tela contribui para romper padrões de uso compulsivo semelhantes aos de vícios comportamentais',
+    'A ausência de celulares em interações sociais fortalece vínculos e melhora a empatia entre as pessoas',
+    'Desconectar-se libera tempo para atividades prazerosas e significativas, promovendo maior satisfação com a vida',
+    'Menos uso de celular está relacionado à diminuição de dores cervicais causadas por má postura prolongada',
+    'Reduzir o uso de celular em ambientes de risco diminui a probabilidade de acidentes por distração',
+    'Evitar telas à noite favorece o ritmo circadiano natural, melhorando a qualidade e duração do sono',
+    'O detox digital reduz a exposição a conteúdos negativos ou desinformativos que afetam o bem-estar mental',
+    'Menos tempo em redes sociais permite o desenvolvimento de autocontrole e disciplina, importantes para a saúde mental',
+    'Estudantes que reduzem o uso do celular têm melhor desempenho acadêmico por aumentarem sua capacidade de foco',
+    'A diminuição da tela reduz a procrastinação associada a estímulos digitais e aumenta a execução de tarefas importantes',
+    'Ficar longe do celular ajuda a reequilibrar o sistema de dopamina, diminuindo a busca por recompensas instantâneas',
+    'A redução do tempo de tela facilita a prática de mindfulness, promovendo maior conexão com o momento presente',
+    'Menos exposição digital reduz a irritabilidade e aumenta a tolerância à frustração, segundo estudos em psicologia comportamental',
+    'Evitar distrações do celular durante atividades físicas melhora o rendimento e a consistência nos treinos',
+    'Ficar desconectado favorece o desenvolvimento da inteligência emocional ao permitir contato mais consciente com as emoções',
+    'O detox digital estimula hábitos saudáveis de sono, alimentação e autocuidado, ao liberar tempo e foco para essas práticas',
   ]);
 
   useEffect(() => {
@@ -115,7 +237,7 @@ const [desafios, setDesafios] = useState([
       setDesafios((anterior) =>
         anterior.map((d) => (d.id === id ? { ...d, completado: true } : d))
       );
-      Alert.alert("🎉 Parabéns!", `Você ganhou ${desafio.pontos} pontos!`);
+      Alert.alert('🎉 Parabéns!', `Você ganhou ${desafio.pontos} pontos!`);
     }
   };
 
@@ -139,7 +261,6 @@ const [desafios, setDesafios] = useState([
     setRotinas(rotinas.filter((rotina) => rotina.id !== id));
   };
 
-
   return (
     <TimerContext.Provider
       value={{
@@ -158,8 +279,13 @@ const [desafios, setDesafios] = useState([
         completarRotina,
         excluirRotina,
         curiosidades,
-      }}
-    >
+        metas,
+        historico,
+        adicionarMeta,
+        editarMeta,
+        excluirMeta,
+        completarMeta,
+      }}>
       {children}
     </TimerContext.Provider>
   );
@@ -170,21 +296,21 @@ const useTimer = () => useContext(TimerContext);
 /*Componentes e cores*/
 
 const cores = {
-  primaria: "#5E8B7E",
-  primariaClara: "#A7C4BC",
-  primariaEscura: "#2F5D62",
-  secundaria: "#FF7B54",
-  secundariaClara: "#FFB26B",
-  secundariaEscura: "#D5603F",
-  branco: "#FFFFFF",
-  cinzaClaro: "#F5F7FA",
-  cinzaMedio: "#E1E5EE",
-  cinzaEscuro: "#797B7E",
-  preto: "#1F1F1F",
-  sucesso: "#4CAF50",
-  aviso: "#FFC107",
-  perigo: "#F44336",
-  info: "#2196F3",
+  primaria: '#5E8B7E',
+  primariaClara: '#A7C4BC',
+  primariaEscura: '#2F5D62',
+  secundaria: '#FF7B54',
+  secundariaClara: '#FFB26B',
+  secundariaEscura: '#D5603F',
+  branco: '#FFFFFF',
+  cinzaClaro: '#F5F7FA',
+  cinzaMedio: '#E1E5EE',
+  cinzaEscuro: '#797B7E',
+  preto: '#1F1F1F',
+  sucesso: '#4CAF50',
+  aviso: '#FFC107',
+  perigo: '#F44336',
+  info: '#2196F3',
 };
 
 /*Estilos globais*/
@@ -202,7 +328,7 @@ const estilosGlobais = StyleSheet.create({
   },
   tituloSecao: {
     fontSize: 22,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.preto,
     marginBottom: 20,
     marginTop: 10,
@@ -246,9 +372,9 @@ const formatarTempo = (segundos) => {
   const horas = Math.floor(segundos / 3600);
   const minutos = Math.floor((segundos % 3600) / 60);
   const segs = segundos % 60;
-  return `${horas.toString().padStart(2, "0")}:${minutos
+  return `${horas.toString().padStart(2, '0')}:${minutos
     .toString()
-    .padStart(2, "0")}:${segs.toString().padStart(2, "0")}`;
+    .padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
 };
 
 // ==============================================
@@ -259,18 +385,19 @@ function TelaInicial({ navigation }) {
   const { tempoTela, pontos, avaliacaoFeita } = useTimer();
 
   const recursos = [
-    { id: "avaliacao", titulo: "Avaliação", icone: "analytics" },
-    { id: "rotinas", titulo: "Minhas Rotinas", icone: "list" },
-    { id: "gamificacao", titulo: "Gamificação", icone: "game-controller" },
-    { id: "curiosidades", titulo: "Curiosidades", icone: "bulb" },
-    { id: "historico", titulo: "Histórico", icone: "calendar" },
+    { id: 'Avaliacao', titulo: 'Avaliação', icone: 'analytics' },
+    { id: 'Rotinas', titulo: 'Minhas Rotinas', icone: 'list' },
+    { id: 'Gamificacao', titulo: 'Gamificação', icone: 'game-controller' },
+    { id: 'Curiosidades', titulo: 'Curiosidades', icone: 'bulb' },
+    { id: 'Historico', titulo: 'Histórico', icone: 'calendar' },
+    { id: 'MetasProgresso', titulo: 'Metas & Progresso', icone: 'stats-chart' },
   ];
 
   const dicasDiarias = [
-    "Comece reduzindo 15min por dia do tempo de tela",
-    "Estabeleça zonas livres de celular em casa",
-    "Use o modo avião e/ou desative notificações durante refeições",
-    "Programe horários específicos para checar redes sociais",
+    'Comece reduzindo 15min por dia do tempo de tela',
+    'Estabeleça zonas livres de celular em casa',
+    'Use o modo avião e/ou desative notificações durante refeições',
+    'Programe horários específicos para checar redes sociais',
   ];
   const [dicaDiaria] = useState(
     dicasDiarias[Math.floor(Math.random() * dicasDiarias.length)]
@@ -285,8 +412,7 @@ function TelaInicial({ navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <View style={estilos.containerAviso}>
           <Ionicons name="warning" size={24} color={cores.aviso} />
           <Text style={estilos.textoAviso}>
@@ -297,7 +423,10 @@ function TelaInicial({ navigation }) {
 
         <View style={estilos.containerHeroi}>
           <View style={estilos.iconeHeroi}>
-            <Image source={logo} style={{ width: "100%", height: "100%", borderRadius: 50}} />
+            <Image
+              source={logo}
+              style={{ width: '100%', height: '100%', borderRadius: 50 }}
+            />
           </View>
           <Text style={estilos.tituloHeroi}>Controle seu Tempo de Tela</Text>
           <Text style={estilos.subtituloHeroi}>
@@ -314,8 +443,7 @@ function TelaInicial({ navigation }) {
             </Text>
             <TouchableOpacity
               style={estilos.botaoPrimario}
-              onPress={() => navigation.navigate("Avaliação")}
-            >
+              onPress={() => navigation.navigate('Avaliação')}>
               <Text style={estilos.textoBotaoPrimario}>Fazer Avaliação</Text>
             </TouchableOpacity>
           </Cartao>
@@ -343,8 +471,7 @@ function TelaInicial({ navigation }) {
             <TouchableOpacity
               key={recurso.id}
               style={estilos.cartaoRecurso}
-              onPress={() => navigation.navigate(recurso.titulo)}
-            >
+              onPress={() => navigation.navigate(recurso.titulo)}>
               <View style={estilos.iconeRecurso}>
                 <Ionicons
                   name={recurso.icone}
@@ -373,16 +500,16 @@ function TelaInicial({ navigation }) {
 
 function TelaAvaliacao({ navigation }) {
   const { avaliarTempoUsuario } = useTimer();
-  const [horas, setHoras] = useState("");
+  const [horas, setHoras] = useState('');
 
   const avaliar = () => {
     const horasNum = parseFloat(horas);
     if (isNaN(horasNum) || horasNum < 0 || horasNum > 24) {
-      Alert.alert("Erro", "Por favor, digite um número válido de horas (0-24)");
+      Alert.alert('Erro', 'Por favor, digite um número válido de horas (0-24)');
       return;
     }
     avaliarTempoUsuario(horasNum);
-    navigation.navigate("Resultado Avaliação", { horas: horasNum });
+    navigation.navigate('Resultado Avaliação', { horas: horasNum });
   };
 
   return (
@@ -396,8 +523,7 @@ function TelaAvaliacao({ navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <Cartao style={estilos.cartaoAvaliacao}>
           <Ionicons
             name="analytics"
@@ -427,8 +553,7 @@ function TelaAvaliacao({ navigation }) {
           <TouchableOpacity
             style={[estilos.botaoPrimario, !horas && estilos.botaoDesabilitado]}
             onPress={avaliar}
-            disabled={!horas}
-          >
+            disabled={!horas}>
             <Text style={estilos.textoBotaoPrimario}>Avaliar Meu Tempo</Text>
           </TouchableOpacity>
         </Cartao>
@@ -444,43 +569,43 @@ function TelaResultadoAvaliacao({ route, navigation }) {
   const getAvaliacao = () => {
     if (horas <= 2)
       return {
-        status: "Excelente",
+        status: 'Excelente',
         cor: cores.sucesso,
-        mensagem: "Seu tempo de tela está dentro do recomendado!",
+        mensagem: 'Seu tempo de tela está dentro do recomendado!',
       };
     if (horas <= 4)
       return {
-        status: "Bom",
+        status: 'Bom',
         cor: cores.info,
-        mensagem: "Seu tempo está razoável, mas podemos melhorar!",
+        mensagem: 'Seu tempo está razoável, mas podemos melhorar!',
       };
     if (horas <= 6)
       return {
-        status: "Preocupante",
+        status: 'Preocupante',
         cor: cores.aviso,
-        mensagem: "Vamos trabalhar para reduzir esse tempo!",
+        mensagem: 'Vamos trabalhar para reduzir esse tempo!',
       };
     return {
-      status: "Crítico",
+      status: 'Crítico',
       cor: cores.perigo,
-      mensagem: "É importante reduzir significativamente seu tempo de tela!",
+      mensagem: 'É importante reduzir significativamente seu tempo de tela!',
     };
   };
 
   const avaliacao = getAvaliacao();
 
   const recomendacoes = [
-    "Estabeleça horários específicos para usar redes sociais",
-    "Ative o modo não perturbe durante o trabalho",
-    "Deixe o carregador fora do quarto à noite",
-    "Substitua 30min de tela por leitura ou exercício",
-    "Desative notificações de apps não essenciais",
-    "Tente achar um hobby fora das telas",
-    "Use apps que monitoram e limitam o tempo de uso",
-    "Faça pausas regulares longe das telas",
-    "Evite usar o celular durante as refeições",
-    "Pratique meditação ou mindfulness diariamente",
-    "Estabeleça um horário para dormir e acordar",
+    'Estabeleça horários específicos para usar redes sociais',
+    'Ative o modo não perturbe durante o trabalho',
+    'Deixe o carregador fora do quarto à noite',
+    'Substitua 30min de tela por leitura ou exercício',
+    'Desative notificações de apps não essenciais',
+    'Tente achar um hobby fora das telas',
+    'Use apps que monitoram e limitam o tempo de uso',
+    'Faça pausas regulares longe das telas',
+    'Evite usar o celular durante as refeições',
+    'Pratique meditação ou mindfulness diariamente',
+    'Estabeleça um horário para dormir e acordar',
   ];
 
   return (
@@ -494,15 +619,12 @@ function TelaResultadoAvaliacao({ route, navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <Cartao
-          style={[estilos.cartaoResultado, { borderLeftColor: avaliacao.cor }]}
-        >
+          style={[estilos.cartaoResultado, { borderLeftColor: avaliacao.cor }]}>
           <Text style={estilos.tituloResultado}>Seu Tempo: {horas}h/dia</Text>
           <View
-            style={[estilos.badgeStatus, { backgroundColor: avaliacao.cor }]}
-          >
+            style={[estilos.badgeStatus, { backgroundColor: avaliacao.cor }]}>
             <Text style={estilos.textoBadge}>{avaliacao.status}</Text>
           </View>
           <Text style={estilos.mensagemResultado}>{avaliacao.mensagem}</Text>
@@ -530,8 +652,7 @@ function TelaResultadoAvaliacao({ route, navigation }) {
 
         <TouchableOpacity
           style={estilos.botaoPrimario}
-          onPress={() => navigation.navigate("Minhas Rotinas")}
-        >
+          onPress={() => navigation.navigate('Minhas Rotinas')}>
           <Text style={estilos.textoBotaoPrimario}>Criar Minhas Rotinas</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -540,14 +661,15 @@ function TelaResultadoAvaliacao({ route, navigation }) {
 }
 
 function TelaRotinas({ navigation }) {
-  const { rotinas, adicionarRotina, completarRotina, excluirRotina } = useTimer();
-  const [novaRotina, setNovaRotina] = useState("");
-  const [categoria, setCategoria] = useState("manha");
+  const { rotinas, adicionarRotina, completarRotina, excluirRotina } =
+    useTimer();
+  const [novaRotina, setNovaRotina] = useState('');
+  const [categoria, setCategoria] = useState('manha');
 
   const categorias = [
-    { id: "manha", nome: "Manhã", icone: "sunny" },
-    { id: "tarde", nome: "Tarde", icone: "partly-sunny" },
-    { id: "noite", nome: "Noite", icone: "moon" },
+    { id: 'manha', nome: 'Manhã', icone: 'sunny' },
+    { id: 'tarde', nome: 'Tarde', icone: 'partly-sunny' },
+    { id: 'noite', nome: 'Noite', icone: 'moon' },
   ];
 
   const adicionarNovaRotina = () => {
@@ -556,10 +678,10 @@ function TelaRotinas({ navigation }) {
         atividade: novaRotina.trim(),
         categoria: categoria,
         horario:
-          categorias.find((cat) => cat.id === categoria)?.nome || "Geral",
+          categorias.find((cat) => cat.id === categoria)?.nome || 'Geral',
       });
-      setNovaRotina("");
-      Alert.alert("Sucesso", "Rotina adicionada com sucesso!");
+      setNovaRotina('');
+      Alert.alert('Sucesso', 'Rotina adicionada com sucesso!');
     }
   };
 
@@ -571,8 +693,7 @@ function TelaRotinas({ navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <Cartao>
           <Text style={estilos.tituloCartao}>Adicionar Nova Rotina</Text>
           <TextInput
@@ -591,8 +712,7 @@ function TelaRotinas({ navigation }) {
                   estilos.botaoCategoria,
                   categoria === cat.id && estilos.botaoCategoriaSelecionado,
                 ]}
-                onPress={() => setCategoria(cat.id)}
-              >
+                onPress={() => setCategoria(cat.id)}>
                 <Ionicons
                   name={cat.icone}
                   size={20}
@@ -602,9 +722,8 @@ function TelaRotinas({ navigation }) {
                   style={[
                     estilos.textoBotaoCategoria,
                     categoria === cat.id &&
-                    estilos.textoBotaoCategoriaSelecionado,
-                  ]}
-                >
+                      estilos.textoBotaoCategoriaSelecionado,
+                  ]}>
                   {cat.nome}
                 </Text>
               </TouchableOpacity>
@@ -617,8 +736,7 @@ function TelaRotinas({ navigation }) {
               !novaRotina && estilos.botaoDesabilitado,
             ]}
             onPress={adicionarNovaRotina}
-            disabled={!novaRotina}
-          >
+            disabled={!novaRotina}>
             <Text style={estilos.textoBotaoPrimario}>Adicionar Rotina</Text>
           </TouchableOpacity>
         </Cartao>
@@ -650,15 +768,13 @@ function TelaRotinas({ navigation }) {
                         style={[
                           estilos.textoRotina,
                           rotina.completada && estilos.textoRotinaCompletada,
-                        ]}
-                      >
+                        ]}>
                         {rotina.atividade}
                       </Text>
                       {!rotina.completada && (
                         <TouchableOpacity
                           style={estilos.botaoCompletarRotina}
-                          onPress={() => completarRotina(rotina.id)}
-                        >
+                          onPress={() => completarRotina(rotina.id)}>
                           <Ionicons
                             name="checkmark"
                             size={20}
@@ -673,23 +789,19 @@ function TelaRotinas({ navigation }) {
                           CONCLUÍDA
                         </Text>
                       </View>
-
                     )}
 
                     {rotina.completada && (
                       <View style={estilos.botaoExcluirRotina}>
                         <TouchableOpacity
-                          onPress={() => excluirRotina(rotina.id)}
-                        >
+                          onPress={() => excluirRotina(rotina.id)}>
                           <Ionicons
                             name="trash"
                             size={20}
                             color={cores.branco}
                           />
                         </TouchableOpacity>
-
                       </View>
-
                     )}
                   </Cartao>
                 ))}
@@ -721,8 +833,7 @@ function TelaCuriosidades({ navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <Cartao style={estilos.cartaoCuriosidade}>
           <View style={estilos.cabecalhoCuriosidade}>
             <Ionicons name="school" size={30} color={cores.primaria} />
@@ -740,8 +851,7 @@ function TelaCuriosidades({ navigation }) {
 
         <TouchableOpacity
           style={estilos.botaoSecundario}
-          onPress={proximaCuriosidade}
-        >
+          onPress={proximaCuriosidade}>
           <Ionicons name="arrow-forward" size={20} color={cores.primaria} />
           <Text style={estilos.textoBotaoSecundario}>Próxima Curiosidade</Text>
         </TouchableOpacity>
@@ -770,8 +880,7 @@ function TelaGamificacao({ navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <Cartao style={estilos.cartaoPontos}>
           <View style={estilos.containerPontos}>
             <View style={estilos.itemPontos}>
@@ -797,7 +906,7 @@ function TelaGamificacao({ navigation }) {
             <View style={estilos.cabecalhoDesafio}>
               <Ionicons
                 name={
-                  desafio.completado ? "checkmark-circle" : "ellipse-outline"
+                  desafio.completado ? 'checkmark-circle' : 'ellipse-outline'
                 }
                 size={28}
                 color={desafio.completado ? cores.sucesso : cores.cinzaMedio}
@@ -807,8 +916,7 @@ function TelaGamificacao({ navigation }) {
                   style={[
                     estilos.nomeDesafio,
                     desafio.completado && estilos.desafioCompletado,
-                  ]}
-                >
+                  ]}>
                   {desafio.nome}
                 </Text>
                 <Text style={estilos.pontosDesafio}>+{desafio.pontos} pts</Text>
@@ -818,8 +926,7 @@ function TelaGamificacao({ navigation }) {
             {!desafio.completado && (
               <TouchableOpacity
                 style={estilos.botaoCompletar}
-                onPress={() => completarDesafio(desafio.id)}
-              >
+                onPress={() => completarDesafio(desafio.id)}>
                 <Text style={estilos.textoBotaoCompletar}>
                   Completar Desafio
                 </Text>
@@ -834,41 +941,36 @@ function TelaGamificacao({ navigation }) {
           {[
             {
               pontos: 100,
-              recompensa: "Bronze",
-              icone: "medal",
+              recompensa: 'Bronze',
+              icone: 'medal',
             },
             {
               pontos: 2500,
-              recompensa: "Prata",
-              icone: "ribbon",
+              recompensa: 'Prata',
+              icone: 'ribbon',
             },
             {
               pontos: 5000,
-              recompensa: "Ouro",
-              icone: "star",
+              recompensa: 'Ouro',
+              icone: 'star',
             },
             {
               pontos: 10000,
-              recompensa: "Platina",
-              icone: "rocket",
+              recompensa: 'Platina',
+              icone: 'rocket',
             },
             {
               pontos: 15000,
-              recompensa: "Diamante",
-              icone: "diamond",
-            }
-
-
-
-            
-            ].map((item, index) => (
+              recompensa: 'Diamante',
+              icone: 'diamond',
+            },
+          ].map((item, index) => (
             <View
               key={index}
               style={[
                 estilos.itemRecompensa,
                 index !== 2 && estilos.bordaItemRecompensa,
-              ]}
-            >
+              ]}>
               <View style={estilos.infoRecompensa}>
                 <Ionicons
                   name={item.icone}
@@ -885,7 +987,7 @@ function TelaGamificacao({ navigation }) {
                 </View>
               </View>
               <Ionicons
-                name={pontos >= item.pontos ? "trophy" : "lock-closed"}
+                name={pontos >= item.pontos ? 'trophy' : 'lock-closed'}
                 size={24}
                 color={
                   pontos >= item.pontos ? cores.secundaria : cores.cinzaMedio
@@ -904,11 +1006,11 @@ function TelaHistorico({ navigation }) {
 
   // Dados simulados do histórico
   const dadosHistorico = [
-    { data: "2023-06-12", tempoTela: 145, meta: meta },
-    { data: "2023-06-11", tempoTela: 132, meta: meta },
-    { data: "2023-06-10", tempoTela: 98, meta: meta },
-    { data: "2023-06-09", tempoTela: 156, meta: meta },
-    { data: "2023-06-08", tempoTela: 110, meta: meta },
+    { data: '2023-06-12', tempoTela: 145, meta: meta },
+    { data: '2023-06-11', tempoTela: 132, meta: meta },
+    { data: '2023-06-10', tempoTela: 98, meta: meta },
+    { data: '2023-06-09', tempoTela: 156, meta: meta },
+    { data: '2023-06-08', tempoTela: 110, meta: meta },
   ];
 
   return (
@@ -919,8 +1021,7 @@ function TelaHistorico({ navigation }) {
           estilosGlobais.scrollContainer,
           { paddingHorizontal: 20 },
         ]}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         <Cartao style={estilos.cartaoResumo}>
           <Text style={estilos.tituloCartao}>Semana Atual</Text>
           <Text style={estilos.valorTempo}>{formatarTempo(tempoTela)}</Text>
@@ -936,10 +1037,10 @@ function TelaHistorico({ navigation }) {
               <View style={estilos.cabecalhoDia}>
                 <View>
                   <Text style={estilos.dataDia}>
-                    {new Date(dia.data).toLocaleDateString("pt-BR", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
+                    {new Date(dia.data).toLocaleDateString('pt-BR', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
                     })}
                   </Text>
                   <Text style={estilos.tempoDia}>
@@ -953,11 +1054,10 @@ function TelaHistorico({ navigation }) {
                       backgroundColor:
                         dia.tempoTela > dia.meta ? cores.perigo : cores.sucesso,
                     },
-                  ]}
-                >
+                  ]}>
                   <Ionicons
                     name={
-                      dia.tempoTela > dia.meta ? "trending-up" : "trending-down"
+                      dia.tempoTela > dia.meta ? 'trending-up' : 'trending-down'
                     }
                     size={16}
                     color={cores.branco}
@@ -982,12 +1082,12 @@ function TelaHistorico({ navigation }) {
                 Meta: {formatarTempo(dia.meta)} •
                 {dia.tempoTela > dia.meta ? (
                   <Text style={estilos.textoAcima}>
-                    {" "}
+                    {' '}
                     {formatarTempo(dia.tempoTela - dia.meta)} acima
                   </Text>
                 ) : (
                   <Text style={estilos.textoAbaixo}>
-                    {" "}
+                    {' '}
                     {formatarTempo(dia.meta - dia.tempoTela)} abaixo
                   </Text>
                 )}
@@ -995,6 +1095,190 @@ function TelaHistorico({ navigation }) {
             </Cartao>
           );
         })}
+      </ScrollView>
+    </View>
+  );
+}
+
+function TelaMetasProgresso({ navigation }) {
+  const {
+    tempoTela,
+    metas,
+    adicionarMeta,
+    editarMeta,
+    excluirMeta,
+    completarMeta,
+    historico,
+  } = useTimer();
+
+  const [tituloMeta, setTituloMeta] = useState('');
+  const [minutosMeta, setMinutosMeta] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
+
+  const salvarMeta = () => {
+    if (!tituloMeta.trim() || !minutosMeta.trim()) {
+      Alert.alert('Erro', 'Preencha todos os campos.');
+      return;
+    }
+
+    const minutos = parseInt(minutosMeta);
+    if (isNaN(minutos) || minutos <= 0) {
+      Alert.alert('Erro', 'Digite um valor válido de minutos.');
+      return;
+    }
+
+    if (editandoId) {
+      editarMeta(editandoId, tituloMeta, minutos * 60);
+      setEditandoId(null);
+    } else {
+      adicionarMeta(tituloMeta, minutos * 60);
+    }
+
+    setTituloMeta('');
+    setMinutosMeta('');
+  };
+
+  const iniciarEdicao = (meta) => {
+    setEditandoId(meta.id);
+    setTituloMeta(meta.titulo);
+    setMinutosMeta(String(meta.metaMinutos / 60));
+  };
+
+  const confirmarExclusao = (id) => {
+    Alert.alert('Excluir Meta', 'Tem certeza que deseja excluir esta meta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: () => excluirMeta(id),
+      },
+    ]);
+  };
+
+  const formatarTempo = (segundos) => {
+    const h = Math.floor(segundos / 3600);
+    const m = Math.floor((segundos % 3600) / 60);
+    const s = segundos % 60;
+    return `${h.toString().padStart(2, '0')}:${m
+      .toString()
+      .padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <View style={estilosGlobais.container}>
+      <Cabecalho
+        titulo="Metas & Progresso"
+        voltar={() => navigation.goBack()}
+      />
+
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <Cartao style={{ marginBottom: 20 }}>
+          <Text style={estilos.tituloCartao}>
+            {editandoId ? 'Editar Meta' : 'Criar Nova Meta'}
+          </Text>
+
+          <TextInput
+            style={estilos.inputMeta}
+            placeholder="Título da meta"
+            value={tituloMeta}
+            onChangeText={setTituloMeta}
+          />
+
+          <TextInput
+            style={estilos.inputMeta}
+            placeholder="Tempo em minutos"
+            keyboardType="numeric"
+            value={minutosMeta}
+            onChangeText={setMinutosMeta}
+          />
+
+          <TouchableOpacity style={estilos.botaoPrimario} onPress={salvarMeta}>
+            <Text style={estilos.textoBotaoPrimario}>
+              {editandoId ? 'Salvar Alterações' : 'Adicionar Meta'}
+            </Text>
+          </TouchableOpacity>
+        </Cartao>
+
+        <Text style={estilosGlobais.tituloSecao}>Suas Metas</Text>
+
+        {metas.length === 0 && (
+          <Text style={{ color: cores.cinzaEscuro }}>
+            Nenhuma meta criada ainda.
+          </Text>
+        )}
+
+        {metas.map((meta) => {
+          const tempoInicial = meta.tempoInicial ?? 0;
+          const tempoDecorrido = Math.max(0, tempoTela - tempoInicial);
+          const progressoPercentual = Math.min(
+            100,
+            (tempoDecorrido / meta.metaMinutos) * 100
+          );
+          const ultrapassou = tempoDecorrido > meta.metaMinutos;
+
+          return (
+            <Cartao key={meta.id} style={estilos.cartaoMeta}>
+              <Text style={estilos.tituloMeta}>{meta.titulo}</Text>
+              <Text style={estilos.texto}>
+                Progresso: {formatarTempo(tempoDecorrido)}
+              </Text>
+              <Text style={estilos.texto}>
+                Tempo atual: {formatarTempo(tempoTela)}
+              </Text>
+
+              <View style={estilos.barraProgressoFundo}>
+                <View
+                  style={[
+                    estilos.barraProgresso,
+                    {
+                      width: `${progressoPercentual}%`,
+                      backgroundColor: ultrapassou
+                        ? cores.perigo
+                        : cores.primaria,
+                    },
+                  ]}
+                />
+              </View>
+
+              <View style={estilos.acoesMeta}>
+                <TouchableOpacity
+                  onPress={() => iniciarEdicao(meta)}
+                  style={estilos.botaoEditar}>
+                  <Text style={estilos.textoBotaoPrimario}>Editar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => confirmarExclusao(meta.id)}
+                  style={estilos.botaoExcluir}>
+                  <Text style={estilos.textoBotaoPrimario}>Excluir</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => completarMeta(meta.id)}
+                  style={estilos.botaoCompletar}>
+                  <Text style={estilos.textoBotaoPrimario}>Completar</Text>
+                </TouchableOpacity>
+              </View>
+            </Cartao>
+          );
+        })}
+
+        <Text style={estilosGlobais.tituloSecao}>Histórico de Metas</Text>
+
+        {historico.length === 0 && (
+          <Text style={{ color: cores.cinzaEscuro }}>
+            Nenhuma meta concluída ainda.
+          </Text>
+        )}
+
+        {historico.map((meta) => (
+          <Cartao key={meta.id} style={estilos.cartaoMeta}>
+            <Text style={estilos.tituloMeta}>{meta.titulo}</Text>
+            <Text style={estilos.texto}>
+              Tempo gasto: {formatarTempo(meta.tempoFinal)}
+            </Text>
+          </Cartao>
+        ))}
       </ScrollView>
     </View>
   );
@@ -1010,9 +1294,9 @@ const estilos = StyleSheet.create({
   cabecalho: {
     height: 100,
     backgroundColor: cores.primaria,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     paddingBottom: 15,
     ...estilosGlobais.sombra,
@@ -1020,21 +1304,21 @@ const estilos = StyleSheet.create({
   textoCabecalho: {
     color: cores.branco,
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   botaoVoltar: {
-    position: "absolute",
+    position: 'absolute',
     left: 20,
     bottom: 15,
     zIndex: 1,
   },
   containerAviso: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: `${cores.aviso}20`,
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 10,
   },
   textoAviso: {
@@ -1045,7 +1329,7 @@ const estilos = StyleSheet.create({
     lineHeight: 16,
   },
   containerHeroi: {
-    alignItems: "center",
+    alignItems: 'center',
     marginVertical: 20,
   },
   iconeHeroi: {
@@ -1053,51 +1337,51 @@ const estilos = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 20,
     ...estilosGlobais.sombra,
     padding: 10,
   },
   tituloHeroi: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.preto,
     marginBottom: 12,
-    textAlign: "center",
+    textAlign: 'center',
   },
   subtituloHeroi: {
     fontSize: 16,
     color: cores.cinzaEscuro,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 24,
-    maxWidth: "80%",
+    maxWidth: '80%',
   },
   cartaoTempo: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 30,
   },
   cartaoAvaliacao: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 30,
   },
   containerMeta: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 8,
   },
   gradeRecursos: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
   cartaoRecurso: {
-    width: "48%",
+    width: '48%',
     backgroundColor: cores.branco,
     borderRadius: 16,
     padding: 20,
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 16,
     ...estilosGlobais.sombraSuave,
   },
@@ -1106,15 +1390,15 @@ const estilos = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: `${cores.primaria}10`,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 12,
   },
   textoRecurso: {
     color: cores.preto,
     fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
+    fontWeight: '600',
+    textAlign: 'center',
   },
   cartao: {
     backgroundColor: cores.branco,
@@ -1124,19 +1408,19 @@ const estilos = StyleSheet.create({
     ...estilosGlobais.sombraSuave,
   },
   cartaoDestaque: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   cartaoDica: {
     marginTop: 10,
   },
   cabecalhoDica: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 12,
   },
   tituloDica: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.preto,
     marginLeft: 8,
   },
@@ -1147,21 +1431,21 @@ const estilos = StyleSheet.create({
   },
   tituloCartao: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.preto,
     marginBottom: 8,
   },
   valorTempo: {
     fontSize: 42,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.primaria,
-    textAlign: "center",
+    textAlign: 'center',
     marginVertical: 8,
   },
   textoMeta: {
     fontSize: 14,
     color: cores.cinzaEscuro,
-    textAlign: "center",
+    textAlign: 'center',
     marginLeft: 4,
   },
   // Novos estilos para avaliação
@@ -1170,21 +1454,21 @@ const estilos = StyleSheet.create({
   },
   tituloAvaliacao: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.preto,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 16,
   },
   textoAvaliacao: {
     fontSize: 16,
     color: cores.cinzaEscuro,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
   },
   containerInput: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 24,
   },
   input: {
@@ -1194,22 +1478,22 @@ const estilos = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
+    fontWeight: '600',
+    textAlign: 'center',
     marginRight: 8,
   },
   textoInput: {
     fontSize: 16,
     color: cores.cinzaEscuro,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   botaoPrimario: {
     backgroundColor: cores.primaria,
     borderRadius: 12,
     padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   botaoDesabilitado: {
     backgroundColor: cores.cinzaMedio,
@@ -1217,7 +1501,7 @@ const estilos = StyleSheet.create({
   textoBotaoPrimario: {
     color: cores.branco,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   // Estilos para resultado da avaliação
   cartaoResultado: {
@@ -1226,12 +1510,12 @@ const estilos = StyleSheet.create({
   },
   tituloResultado: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.preto,
     marginBottom: 12,
   },
   badgeStatus: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -1240,7 +1524,7 @@ const estilos = StyleSheet.create({
   textoBadge: {
     color: cores.branco,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   mensagemResultado: {
     fontSize: 16,
@@ -1249,8 +1533,8 @@ const estilos = StyleSheet.create({
     marginBottom: 16,
   },
   cartaoRecomendacao: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     marginBottom: 8,
   },
@@ -1259,14 +1543,14 @@ const estilos = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: cores.primaria,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
   textoNumero: {
     color: cores.branco,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   textoRecomendacao: {
     flex: 1,
@@ -1285,20 +1569,20 @@ const estilos = StyleSheet.create({
   },
   subtituloRotina: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.preto,
     marginBottom: 12,
   },
   containerCategorias: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 20,
   },
   botaoCategoria: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 12,
     borderRadius: 8,
     borderWidth: 2,
@@ -1310,7 +1594,7 @@ const estilos = StyleSheet.create({
   },
   textoBotaoCategoria: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.primaria,
     marginLeft: 4,
   },
@@ -1318,24 +1602,24 @@ const estilos = StyleSheet.create({
     color: cores.branco,
   },
   cartaoVazio: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 40,
   },
   textoVazio: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.cinzaEscuro,
     marginTop: 12,
   },
   subtextoVazio: {
     fontSize: 14,
     color: cores.cinzaMedio,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 4,
   },
   tituloCategoria: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.preto,
     marginTop: 16,
     marginBottom: 8,
@@ -1346,9 +1630,9 @@ const estilos = StyleSheet.create({
     marginBottom: 8,
   },
   cabecalhoRotina: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   textoRotina: {
     fontSize: 16,
@@ -1356,7 +1640,7 @@ const estilos = StyleSheet.create({
     flex: 1,
   },
   textoRotinaCompletada: {
-    textDecorationLine: "line-through",
+    textDecorationLine: 'line-through',
     color: cores.cinzaEscuro,
   },
   botaoCompletarRotina: {
@@ -1364,13 +1648,13 @@ const estilos = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 12,
   },
   emblemaCompletada: {
     backgroundColor: cores.sucesso,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -1379,20 +1663,20 @@ const estilos = StyleSheet.create({
   textoEmblemaCompletada: {
     color: cores.branco,
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   // Estilos para curiosidades
   cartaoCuriosidade: {
     padding: 24,
   },
   cabecalhoCuriosidade: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
   tituloCuriosidade: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.preto,
     marginLeft: 8,
   },
@@ -1400,21 +1684,21 @@ const estilos = StyleSheet.create({
     fontSize: 16,
     color: cores.cinzaEscuro,
     lineHeight: 24,
-    textAlign: "center",
+    textAlign: 'center',
   },
   containerContador: {
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 16,
   },
   textoContador: {
     fontSize: 14,
     color: cores.cinzaMedio,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   botaoSecundario: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 16,
     borderWidth: 2,
     borderColor: cores.primaria,
@@ -1424,12 +1708,12 @@ const estilos = StyleSheet.create({
   textoBotaoSecundario: {
     color: cores.primaria,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     marginLeft: 8,
   },
   cartaoInfo: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     padding: 16,
   },
   textoInfo: {
@@ -1442,71 +1726,41 @@ const estilos = StyleSheet.create({
   // Estilos existentes mantidos
   containerProgresso: {
     marginVertical: 20,
-    alignItems: "center",
+    alignItems: 'center',
+  },
+  inputMeta: {
+    backgroundColor: cores.branco,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: cores.cinzaMedio,
   },
   barraProgressoFundo: {
-    height: 12,
-    backgroundColor: cores.cinzaClaro,
-    borderRadius: 6,
-    width: "100%",
-    overflow: "hidden",
+    backgroundColor: cores.cinzaMedio,
+    height: 8,
+    borderRadius: 5,
+    marginVertical: 10,
   },
   barraProgresso: {
-    height: "100%",
-    backgroundColor: cores.primaria,
-    borderRadius: 6,
+    height: 8,
+    borderRadius: 5,
   },
-  textoProgresso: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: cores.primaria,
-    marginTop: 8,
-  },
-  botaoAcao: {
-    flexDirection: "row",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
+  acoesMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 10,
-    width: "100%",
-  },
-  textoBotaoAcao: {
-    color: cores.branco,
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  linhaEstatistica: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  rotuloEstatistica: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  textoRotuloEstatistica: {
-    fontSize: 16,
-    color: cores.cinzaEscuro,
-    marginLeft: 8,
-  },
-  valorEstatistica: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: cores.preto,
   },
   cartaoPontos: {
     paddingVertical: 30,
   },
   containerPontos: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   itemPontos: {
-    alignItems: "center",
+    alignItems: 'center',
     flex: 1,
   },
   separadorPontos: {
@@ -1522,7 +1776,7 @@ const estilos = StyleSheet.create({
   },
   valorPontos: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.primaria,
   },
   cartaoDesafio: {
@@ -1530,8 +1784,8 @@ const estilos = StyleSheet.create({
     padding: 20,
   },
   cabecalhoDesafio: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   infoDesafio: {
     flex: 1,
@@ -1543,30 +1797,31 @@ const estilos = StyleSheet.create({
     marginBottom: 4,
   },
   desafioCompletado: {
-    textDecorationLine: "line-through",
+    textDecorationLine: 'line-through',
     color: cores.cinzaEscuro,
   },
   pontosDesafio: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.secundaria,
   },
   botaoCompletar: {
-    backgroundColor: cores.primaria,
-    borderRadius: 10,
-    paddingVertical: 12,
-    alignItems: "center",
-    marginTop: 12,
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
   },
   textoBotaoCompletar: {
     color: cores.branco,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   itemRecompensa: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 16,
   },
   bordaItemRecompensa: {
@@ -1574,13 +1829,13 @@ const estilos = StyleSheet.create({
     borderBottomColor: cores.cinzaMedio,
   },
   infoRecompensa: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
   pontosRecompensa: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.secundaria,
     marginLeft: 12,
   },
@@ -1591,7 +1846,7 @@ const estilos = StyleSheet.create({
     marginTop: 2,
   },
   cartaoResumo: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 30,
   },
   cartaoDia: {
@@ -1599,20 +1854,20 @@ const estilos = StyleSheet.create({
     padding: 20,
   },
   cabecalhoDia: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 16,
   },
   dataDia: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     color: cores.preto,
-    textTransform: "capitalize",
+    textTransform: 'capitalize',
   },
   tempoDia: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '700',
     color: cores.primaria,
     marginTop: 4,
   },
@@ -1620,29 +1875,63 @@ const estilos = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   textoAcima: {
     color: cores.perigo,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   textoAbaixo: {
     color: cores.sucesso,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   botaoExcluirRotina: {
     backgroundColor: cores.perigo,
-    width: "fit-content",
+    width: 'fit-content',
     padding: 8,
     borderRadius: 8,
 
-    position: "absolute",
-    top: "50%",
-    right: "0%",
-    transform: [{ translateX: "-50%" }, { translateY: "-50%" }],
-    cursor: "pointer",
-  }
+    position: 'absolute',
+    top: '50%',
+    right: '0%',
+    transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
+    cursor: 'pointer',
+  },
+  botaoEditar: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  cartaoMeta: {
+    backgroundColor: cores.branco,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    ...estilosGlobais.sombraSuave,
+  },
+  tituloMeta: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: cores.preto,
+    marginBottom: 8,
+  },
+  texto: {
+    fontSize: 14,
+    color: cores.cinzaEscuro,
+    marginBottom: 4,
+  },
+  botaoExcluir: {
+    backgroundColor: '#F44336',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
 });
 
 export default function App() {
@@ -1660,6 +1949,10 @@ export default function App() {
           <Stack.Screen name="Curiosidades" component={TelaCuriosidades} />
           <Stack.Screen name="Gamificação" component={TelaGamificacao} />
           <Stack.Screen name="Histórico" component={TelaHistorico} />
+          <Stack.Screen
+            name="Metas & Progresso"
+            component={TelaMetasProgresso}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </ProvedorTimer>
